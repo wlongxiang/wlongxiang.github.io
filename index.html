@@ -1,18 +1,41 @@
-<!DOCTYPE html>
-
 <html>
-<head>
-<title>
 
-I loe you
-</title>
- <meta http-equiv=Content-Type content="text/html;charset=utf-8"><meta content=always name=referrer>
+<script type="text/javascript">
 
-</head>
-<body>
+function detectBrowser()
+{
+	/*
+    var fallback = true;
+    
+    if (navigator && navigator.vendor) {
+        if (navigator.vendor.search("Apple") != -1) {
+            var vers = parseInt(navigator.appVersion.replace(/^.*?AppleWebKit\/(\d+).*?$/,'$1'),0);
+                if (vers >= 532) {
+                    fallback = false;
+                }
+        }
+    }
+    
+    var slashIndex = window.location.href.lastIndexOf("/");
+    var cropped = window.location.href.slice(0,slashIndex+1);
+    
+    if (fallback) {
+        window.location.replace( cropped + "assets/fallback/index.html" );
+    }
+    else {
+        window.location.replace( cropped + "assets/player/KeynoteDHTMLPlayer.html" );
+    }
+    */
+    var slashIndex = window.location.href.lastIndexOf("/");
+    var cropped = window.location.href.slice(0,slashIndex+1);
+    
+    window.location.replace(cropped + "assets/player/KeynoteDHTMLPlayer.html");
 
-Hello,world!
+}
 
+</script>
 
+<body bgcolor="black" onload="detectBrowser()">
 </body>
+
 </html>
