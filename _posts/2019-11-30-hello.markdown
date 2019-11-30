@@ -1,0 +1,14 @@
+---
+layout: post
+comments: true
+title:  "Test blog"
+excerpt: "this is just a test. no serious stuff."
+date:   2019-11-30 9:00:00
+mathjax: true
+---
+
+## Hello this is me.
+This is how you link to assets from your post.
+
+
+<img src="/assets/chrome3.jpeg">
