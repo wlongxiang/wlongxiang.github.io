@@ -8,9 +8,11 @@ mathjax: true
 ---
 
 ## concatenation vs stack
+In short, *concatenation* merges vectors or matrice without introducing new dimensions. At the opposite side, *stack* increases the dimensionality, for example, stacking two vector will create a 2-dimensional matrix, stacking two matrices will make a 3-dimensional tensor.
+
 ### Numpy
 **Vector concatenation**:
-For example, if we want to extend a longer vector by doging \\( c= a + b \\), we can use the `np.concatenate` function. NB: setting `axis=1` is not permitted for a vector which only has a single dimension.
+If we want to extend a longer vector by doging \\( c= a + b \\), we can use the `np.concatenate` function. NB: setting `axis=1` is not permitted for a vector which only has a single dimension.
 ```python
 a = np.array([1,2,3])
 b = np.array([4,5,6])
