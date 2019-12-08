@@ -14,8 +14,19 @@ For example, if we want to extend a longer vector by doging \\( c= a + b \\), we
 ```python
 a = np.array([1,2,3])
 b = np.array([4,5,6])
-c = np.concatenate([a,b], axis=0)
+c = np.concatenate([a,b], axis=0) # axis must be in [-1,0]
 
 >>> c
 array([1, 2, 3, 4, 5, 6])
+```
+### Pytorch
+In pytorch, the API is called `torch.cat` instead of `np.concatenate`, and the dimension is called  `dim` instead of `axis` .
+
+```python
+aa = torch.Tensor([1,2,3])
+bb = torch.Tensor([4,5,6])
+cc = torch.cat([aa,bb], dim=0) # dim must be in [-1,0]
+
+>>> cc
+tensor([1., 2., 3., 4., 5., 6.])
 ```
