@@ -173,7 +173,7 @@ In this example, we create a fully qualified window specification with all three
 calculate the average salary per department:
 ```python
 from pyspark.sql.window import Window
-window_spec = Window.partitionBy("department").orderBy("name").rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)Window.unboundedFollowing)
+window_spec = Window.partitionBy("department").orderBy("name").rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)
 df.select(df.department, avg("salary").over(windowSpec).alias("avg_salary_depart")).show()
 >>>
 +----------+-----------------+
@@ -189,7 +189,7 @@ df.select(df.department, avg("salary").over(windowSpec).alias("avg_salary_depart
 
 The above code is the same as:
 ```python
-spark.sql("select  department, avg(salary) over(partition by department order by name rows between UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as avg_salary_depart from salary").show()
+spark.sql("SELECT department, avg(salary) OVER(PARTITION BY department ORBER BY name ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as avg_salary_depart from salary").show()
 >>>
 +----------+-----------------+
 |department|avg_salary_depart|
