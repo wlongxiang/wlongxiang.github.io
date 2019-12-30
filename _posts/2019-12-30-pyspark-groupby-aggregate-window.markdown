@@ -7,8 +7,11 @@ date:   2019-12-30 9:00:00
 mathjax: true
 ---
 
-# What is `groupby`?
-The `groupBy` function allows you to group rows (observations in ML terms) which has same values of certain column(s).
+In this blog, in the first part, we are gonna walk through the `groupBy` and aggregation operation in spark with ready to
+run code samples. Then in the second part, we aim to shed some lights on the the powerful *window* operation.
+
+## What is `groupby`?
+The `groupBy` function allows you to group rows into a so-called *Frame* which has same values of certain column(s).
 `groupBy` operation is almost always used together with aggregation functions.
 
 In spark, the [`DataFrame.groupBy(*cols)`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame.groupBy) API, returns a `GroupedData` object, on which aggregation functions can
@@ -19,7 +22,7 @@ be applied. Below is a list of builtin aggregations:
 Note that it is possible to define your own aggregation functions using [pandas_udf](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.functions.pandas_udf).
 We will cover it at another time.
 
-## Code example (ready to run)
+### Code example (ready to run)
 We first create some dummy salary data.
 ```python
 import pandas as pd
@@ -109,8 +112,109 @@ df.groupBy("department").count().show()
 ```
 **NB: count() does not take arguments, because it simply returns number of rows in each group.**
 
-# What is `window`?
-TODO
+## What is `window`?
+
+Window functions operate on a set of rows and return a single value for each row. This is different
+than the `groupBy` and aggregation function in part 1, which only returns a single value for each group
+or Frame.
+
+
+The window function is spark is largely the same as in traditional SQL with `OVER()` clause.
+The `OVER()` clause has the following capabilities:
+                                                                                             
+- Defines window partitions to form groups of rows. (PARTITION BY clause)
+- Orders rows within a partition. (ORDER BY clause)
+
+NB: `PARTIION BY` is similar to `groupBy` as discussed before in a sense that both create groups or rows or
+Frames.
+
+A normal aggregation function returns a single value:
+```python
+# register the table
+df.createOrReplaceTempView("salary")
+spark.sql("select avg(salary) as avg_salary_company from salary").show()
+#OR equivalently with df.groupBy().avg("salary").show()
+>>>
++------------------+
+|avg_salary_company|
++------------------+
+|            1860.0|
++------------------+
+```
+A window function with over returns a value for each row:
+```python
+spark.sql("select name, department, avg(salary) over() as avg_salary_company from salary").show()
+>>>
+2019-12-30 14:58:06,763 WARN window.WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
++------+----------+------------------+
+|  name|department|avg_salary_company|
++------+----------+------------------+
+| alice|        HR|            1860.0|
+|   bob|        IT|            1860.0|
+| clair|        IT|            1860.0|
+|stefan|   Finance|            1860.0|
+|darren|        HR|            1860.0|
++------+----------+------------------+
+```
+NB: the warning says that we we should use partion inside the `OVER()` clause to avoid collecting
+all rows into a single partition.
+
+## How to define window operations in spark?
+
+There are three parts for a window specification (see reference [2]):
+
+- Partitioning Specification (`PARTITION BY`): controls which rows will be in the same partition with the given row. Also, the user might want to make sure all rows having the same value for  the category column are collected to the same machine before ordering and calculating the frame.  If no partitioning specification is given, then all data must be collected to a single machine.
+- Ordering Specification (`ORDER BY`): controls the way that rows in a partition are ordered, determining the position of the given row in its partition.
+- Frame Specification (`{ RANGE | ROWS } BETWEEN frame_start AND frame_end`): states which rows will be included in the frame for the current input row, based on their relative position to the current row.  For example, “the three rows preceding the current row to the current row” describes a frame including the current input row and three rows appearing before the current row.
+
+In pyspark, we can specify window definition as shown below, equivalent to `Over(PARTITION BY COL_A ORDER BY COL_B ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)` in SQL.
+
+In this example, we create a fully qualified window specification with all three parts, and
+calculate the average salary per department:
+```python
+from pyspark.sql.window import Window
+window_spec = Window.partitionBy("department").orderBy("name").rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)Window.unboundedFollowing)
+df.select(df.department, avg("salary").over(windowSpec).alias("avg_salary_depart")).show()
+>>>
++----------+-----------------+
+|department|avg_salary_depart|
++----------+-----------------+
+|        HR|           1050.0|
+|        HR|           1050.0|
+|   Finance|           3000.0|
+|        IT|           2100.0|
+|        IT|           2100.0|
++----------+-----------------+
+```
+
+The above code is the same as:
+```python
+spark.sql("select  department, avg(salary) over(partition by department order by name rows between UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as avg_salary_depart from salary").show()
+>>>
++----------+-----------------+
+|department|avg_salary_depart|
++----------+-----------------+
+|        HR|           1050.0|
+|        HR|           1050.0|
+|   Finance|           3000.0|
+|        IT|           2100.0|
+|        IT|           2100.0|
++----------+-----------------+
+```
+
+## References
+[1. A gentle introduction into window function in traditional SQL](https://drill.apache.org/docs/sql-window-functions-introduction/)
+
+[2. This blog from databricks explains the window feature in spark very well](https://databricks.com/blog/2015/07/15/introducing-window-functions-in-spark-sql.html).
+
+
+
+
+
+
+
+
+
 
 
 
