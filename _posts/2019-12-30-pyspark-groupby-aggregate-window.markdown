@@ -1,17 +1,17 @@
 ---
 layout: post
 comments: true
-title:  "Pyspark: groupBy, aggregate and window operations"
+title:  "Pyspark: groupby, aggregate and window operations"
 excerpt: "A simple tutorial on groupBy, aggregate and window operations in pyspark."
 date:   2019-12-30 9:00:00
 mathjax: true
 ---
 
-## What is `groupBy`?
+# What is `groupby`?
 The `groupBy` function allows you to group rows (observations in ML terms) which has same values of certain column(s).
 `groupBy` operation is almost always used together with aggregation functions.
 
-In spark, the `DataFrame.groupBy(*cols)` API, returns a `GroupedData` object, on which aggregation functions can
+In spark, the [`DataFrame.groupBy(*cols)`](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame.groupBy) API, returns a `GroupedData` object, on which aggregation functions can
 be applied. Below is a list of builtin aggregations:
 
 - *avg, max, min, sum, count*
@@ -19,7 +19,7 @@ be applied. Below is a list of builtin aggregations:
 Note that it is possible to define your own aggregation functions using [pandas_udf](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.functions.pandas_udf).
 We will cover it at another time.
 
-### Code example
+## Code example (ready to run)
 We first create some dummy salary data.
 ```python
 import pandas as pd
@@ -57,7 +57,7 @@ df.groupBy("department").avg("salary").show()
 |        IT|     2100.0|
 +----------+-----------+
 ```
-To show the headcount budget:
+To show total salary for each department:
 ```python
 # sum of salaries for different departments
 
@@ -71,11 +71,21 @@ df.groupBy("department").sum("salary").show()
 |        IT|       4200|
 +----------+-----------+
 ```
-To calculate the budget for whole company, we can omit column name in `groupBy` operation:
+To calculate the budget for the whole company, we can omit column name in `groupBy` operation:
 ```python
 # sum of salaries for all departments
 
 df.groupBy().sum("salary").show()
+>>>
++-----------+
+|sum(salary)|
++-----------+
+|       9300|
++-----------+
+
+# for simply aggregations without grouping, one can use sql functions as shorthand
+from pyspark.sql.function import *
+df.select(sum("salary")).show()
 >>>
 +-----------+
 |sum(salary)|
@@ -99,6 +109,8 @@ df.groupBy("department").count().show()
 ```
 **NB: count() does not take arguments, because it simply returns number of rows in each group.**
 
+# What is `window`?
+TODO
 
 
 
